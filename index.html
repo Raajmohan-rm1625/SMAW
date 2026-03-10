@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Bin AI — Waste Optimization Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🗑️ Smart Bin AI</h1>
+                <p class="subtitle">Intelligent Food Waste & Flow Optimization System</p>
+            </div>
+            <div class="connection-status">
+                <div class="status-indicator" id="statusIndicator"></div>
+                <span id="statusText">Connecting...</span>
+            </div>
+        </header>
+
+        <!-- Settings Panel -->
+        <div class="settings-panel">
+            <div class="settings-group">
+                <label for="apiUrl">API URL:</label>
+                <input type="text" id="apiUrl" value="http://localhost:5500" placeholder="http://localhost:5500">
+            </div>
+            <div class="settings-group">
+                <label for="apiKey">API Key:</label>
+                <input type="password" id="apiKey" value="smwis-key-2024" placeholder="API Key">
+            </div>
+            <button class="btn-primary" onclick="testConnection()">Test Connection</button>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Readings</h3>
+                <p class="stat-value" id="totalReadings">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Server Status</h3>
+                <p class="stat-value" id="serverStatus">Offline</p>
+            </div>
+            <div class="stat-card">
+                <h3>Efficiency Score</h3>
+                <p class="stat-value" id="efficiencyScore">--</p>
+            </div>
+            <div class="stat-card">
+                <h3>Active Bins</h3>
+                <p class="stat-value" id="activeBins">0</p>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab-button active" data-tab="dashboard">Dashboard</button>
+            <button class="tab-button" data-tab="data-input">Input Data</button>
+            <button class="tab-button" data-tab="analysis">Analysis</button>
+            <button class="tab-button" data-tab="patterns">Patterns</button>
+            <button class="tab-button" data-tab="crowd">Crowd Analytics</button>
+            <button class="tab-button" data-tab="predictions">Predictions</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-pane active">
+                <div class="section">
+                    <h2>System Overview</h2>
+                    <div class="overview-grid">
+                        <div class="overview-card">
+                            <h3>Waste by Meal</h3>
+                            <div id="wasteByMeal" class="data-display"></div>
+                        </div>
+                        <div class="overview-card">
+                            <h3>Waste by Dish</h3>
+                            <div id="wasteByDish" class="data-display"></div>
+                        </div>
+                        <div class="overview-card">
+                            <h3>Efficiency by Dish</h3>
+                            <div id="efficiencyByDish" class="data-display"></div>
+                        </div>
+                        <div class="overview-card">
+                            <h3>Waste Percentage</h3>
+                            <div id="wastePercent" class="data-display"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Input Tab -->
+            <div id="data-input" class="tab-pane">
+                <div class="section">
+                    <h2>Add New Reading</h2>
+                    <form class="form-grid" id="readingForm">
+                        <div class="form-group">
+                            <label for="binId">Bin ID:</label>
+                            <input type="text" id="binId" placeholder="e.g., BIN-01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dish">Dish:</label>
+                            <input type="text" id="dish" placeholder="e.g., Rice" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="weightKg">Weight (kg):</label>
+                            <input type="number" id="weightKg" placeholder="0.0" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="batteryVoltage">Battery Voltage:</label>
+                            <input type="number" id="batteryVoltage" placeholder="4.2" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label for="wifiRssi">WiFi RSSI:</label>
+                            <input type="number" id="wifiRssi" placeholder="-50" step="1">
+                        </div>
+                        <button type="submit" class="btn-primary">Add Reading</button>
+                    </form>
+                </div>
+
+                <div class="section">
+                    <h2>Set Cooked Amounts</h2>
+                    <form class="form-grid" id="cookedForm">
+                        <div class="form-group">
+                            <label for="cookedDish">Dish:</label>
+                            <input type="text" id="cookedDish" placeholder="e.g., Rice" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cookedAmount">Total Cooked (kg):</label>
+                            <input type="number" id="cookedAmount" placeholder="0.0" step="0.1" required>
+                        </div>
+                        <button type="submit" class="btn-primary">Set Cooked Amount</button>
+                    </form>
+                </div>
+
+                <div class="section">
+                    <h2>Recent Readings</h2>
+                    <div id="recentReadings" class="readings-table"></div>
+                </div>
+            </div>
+
+            <!-- Analysis Tab -->
+            <div id="analysis" class="tab-pane">
+                <div class="section">
+                    <h2>Waste Analysis</h2>
+                    <div class="analysis-grid">
+                        <div class="analysis-card">
+                            <h3>Total Waste by Meal</h3>
+                            <div id="analyzerWasteByMeal" class="data-display"></div>
+                        </div>
+                        <div class="analysis-card">
+                            <h3>Total Waste by Dish</h3>
+                            <div id="analyzerWasteByDish" class="data-display"></div>
+                        </div>
+                        <div class="analysis-card">
+                            <h3>Waste Percentage by Dish</h3>
+                            <div id="analyzerWastePercent" class="data-display"></div>
+                        </div>
+                        <div class="analysis-card">
+                            <h3>Efficiency Score by Dish</h3>
+                            <div id="analyzerEfficiency" class="data-display"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patterns Tab -->
+            <div id="patterns" class="tab-pane">
+                <div class="section">
+                    <h2>Pattern Detection</h2>
+                    <div id="patternsContainer" class="patterns-container"></div>
+                </div>
+            </div>
+
+            <!-- Crowd Analytics Tab -->
+            <div id="crowd" class="tab-pane">
+                <div class="section">
+                    <h2>Crowd Velocity Analysis</h2>
+                    <div class="crowd-grid">
+                        <div class="crowd-card">
+                            <h3>Average Velocity</h3>
+                            <p class="crowd-value" id="avgVelocity">-- kg/min</p>
+                        </div>
+                        <div class="crowd-card">
+                            <h3>Crowd Status</h3>
+                            <p class="crowd-value" id="crowdStatus">--</p>
+                        </div>
+                        <div class="crowd-card">
+                            <h3>Threshold</h3>
+                            <p class="crowd-value" id="velocityThreshold">-- kg/min</p>
+                        </div>
+                    </div>
+                    <div id="crowdAlert" class="alert alert-warning" style="display: none;"></div>
+                    <h3 style="margin-top: 20px;">Per-Bin Velocity</h3>
+                    <div id="perBinVelocity" class="data-display"></div>
+                </div>
+            </div>
+
+            <!-- Predictions Tab -->
+            <div id="predictions" class="tab-pane">
+                <div class="section">
+                    <h2>Predictive Cooking Recommendations</h2>
+                    <div id="predictionsContainer" class="predictions-container"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Refresh Controls -->
+        <div class="refresh-controls">
+            <button class="btn-secondary" onclick="refreshAllData()">Refresh Data</button>
+            <button class="btn-secondary" onclick="clearAllData()">Clear Data</button>
+            <label>
+                <input type="checkbox" id="autoRefresh" checked> Auto-refresh (10s)
+            </label>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Smart Bin AI v1.0 — Intelligent Food Waste & Flow Optimization</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
